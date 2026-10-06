@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+        integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+
+<body>
+    <div id="app">
+        <div
+            class="w-full h-screen bg-[url('https://www.bing.com/th/id/OGC.70e3ec400676104a05cd532076588229?r=0&o=7&pid=1.7&rm=3&rurl=https%3a%2f%2fi.pinimg.com%2foriginals%2fa9%2f0f%2ffd%2fa90ffd68ce41dcdde3615430334806fa.gif&ehk=%2fNvwyMqfd0lkDtQ4O0o0R6%2fqxHSOlsiUxjrDD4%2fkppw%3d')] bg-cover bg-center flex justify-center items-center">
+            <div class="mt-10 flex flex-col px-5 py-2 justify-center gap-5">
+                <button @click="reset()"
+                    class="text-center bg-blue-500 text-gray-50 mt-5 rounded-lg px-5 py-2 font-bold text-2xl">restart</button>
+                <div class=" bg-linear-to-tr from-blue-400 to-blue-400 grid grid-cols-3 p-8 rounded-[5%] ">
+                    <div v-for="(row, rowIndex) in boardCells" :key="rowIndex">
+                        <div v-for="(cell, colIndex) in row" :key="colIndex"
+                            class="w-33 m-4 h-33 bg-gray-200 hover:bg-blue-500 duration-200 rounded-lg text-center font-bold text-9xl"
+                            @click="cellClicked(rowIndex, colIndex)" :class="{
+                                'text-red-500': cell === 'X', 
+                                'text-blue-500': cell === 'O',
+                                'cursor-not-allowed': cell !== '' || winner
+                            }">
+                            {{cell}}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-center text-blue-50 font-bold text-2xl">{{message}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        Vue.createApp({
+            data() {
+                return {
+                    boardCells: [
+                        ["", "", ""],
+                        ["", "", ""],
+                        ["", "", ""]
+                    ],
+                    currentPlayer: 'X',
+                    message: "Player X's turn",
+                    winner: null,
+
+                }
+            },
+            methods: {
+
+                cellClicked(row, col) {
+                    if (this.boardCells[row][col] !== "" || this.winner) {
+                        return;
+                    }
+
+                    this.boardCells[row][col] = this.currentPlayer;
+
+                    if (this.isWinner(this.currentPlayer)) {
+                        this.winner = this.currentPlayer;
+                        this.message = `Player ${this.winner} win!`;
+                    } else if (this.isDraw(this.currentPlayer)) {
+                        this.message = `Draw!`
+                    } else {
+                        this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                        this.message = `Player ${this.currentPlayer} Turn!`;
+                    }
+                },
+                isWinner(user) {
+                    // row+
+                    for (let row = 0; row < this.boardCells.length; row++) {
+                        if (this.boardCells[row][0] == user
+                            && this.boardCells[row][1] == user
+                            && this.boardCells[row][2] == user) {
+                            return true;
+                        }
+                    }
+                    // para col
+                    for (let col = 0; col < this.boardCells.length; col++) {
+                        if (this.boardCells[0][col] == user
+                            && this.boardCells[1][col] == user
+                            && this.boardCells[2][col] == user) {
+                            return true;
+                        }
+                    }
+                    // para diagonal
+                    if (this.boardCells[0][0] == user
+                        && this.boardCells[1][1] == user
+                        && this.boardCells[2][2] == user) {
+                        return true;
+                    }
+                    if (this.boardCells[0][2] == user
+                        && this.boardCells[1][1] == user
+                        && this.boardCells[2][0] == user) {
+                        return true;
+                    }
+                    return false;
+
+                },
+                reset() {
+                    this.boardCells = [
+                        ["", "", ""],
+                        ["", "", ""],
+                        ["", "", ""]
+                    ];
+                    this.currentPlayer = 'X',
+                        this.message = "Player X's turn",
+                        this.winner = null;
+                },
+                isDraw() {
+                    for (let row = 0; row < this.boardCells.length; row++) {
+                        for (let col = 0; col < this.boardCells.length; col++) {
+                            if (this.boardCells[row][col] === '') {
+                                return false;
+                            }
+                        }
+                    }
+                    return !this.isWinner('X') && !this.isWinner('O');
+                }
+            }
+        }).mount('#app')
+    </script>
+
+</body>
+
+</html>
